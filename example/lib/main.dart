@@ -37,43 +37,79 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // Example markdown content
+    // Example markdown content with enhanced features
     _markdownController.text = '''
-# Sample Markdown Document
+# Enhanced Markdown Document
 
-This is a **sample markdown document** that demonstrates various formatting options.
+This is a **comprehensive sample** that demonstrates the new features and improved formatting.
 
-## Features
+## Key Features
 
-- **Bold text**
-- *Italic text*
-- `Code snippets`
-- [Links](https://example.com)
+- **Bold text** and *italic text*
+- `Inline code` and code blocks
+- [External links](https://example.com)
+- Advanced table formatting
+- Beautiful blockquotes
+- Custom themes and styling
 
-### Code Block
+### Code Examples
+
+Here's some inline `code` and a code block:
 
 ```dart
-void main() {
-  print('Hello, World!');
+class MarkdownToPdfConverter {
+  final PdfOptions options;
+  
+  Future<File> convertToFile(MarkdownSource source) async {
+    // Implementation here
+    return file;
+  }
 }
 ```
 
-### Table
+### Advanced Table
 
-| Feature | Status |
-|---------|--------|
-| Headers | ✅ |
-| Lists | ✅ |
-| Code | ✅ |
-| Tables | ✅ |
+| Feature | Status | Priority | Notes |
+|---------|--------|----------|-------|
+| Custom Themes | [OK] | High | Multiple predefined themes |
+| Advanced Tables | [OK] | High | Better formatting and styling |
+| Font Customization | [OK] | Medium | Multiple font families |
+| Table Styling | [OK] | High | Borders, colors, alignment |
+| Code Highlighting | [WIP] | Low | Coming soon |
 
-### Blockquote
+### Blockquote Examples
 
-> This is a blockquote example.
+> This is a beautiful blockquote with enhanced styling.
+> It demonstrates the improved visual design.
+
+> Another blockquote to show the consistent styling
+> across different elements.
+
+### Lists
+
+#### Unordered List
+- First item
+- Second item with **bold text**
+- Third item with *italic text*
+- Fourth item with `code`
+
+#### Ordered List
+1. First numbered item
+2. Second numbered item
+3. Third numbered item with [link](https://example.com)
 
 ---
 
-**End of document**
+## Conclusion
+
+This enhanced package now provides:
+- **Highly customizable** themes and styling
+- **Professional table formatting** with advanced options
+- **Beautiful default design** with improved visual hierarchy
+- **Multiple predefined themes** for quick setup
+- **Flexible font configuration** with multiple families
+
+**End of enhanced document**
 ''';
   }
 
@@ -93,7 +129,7 @@ void main() {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            
+
             // URL Input Section
             const Text(
               'From URL:',
@@ -103,20 +139,21 @@ void main() {
             TextField(
               controller: _urlController,
               decoration: const InputDecoration(
-                hintText: 'Enter markdown URL (e.g., https://raw.githubusercontent.com/user/repo/main/README.md)',
+                hintText:
+                    'Enter markdown URL (e.g., https://raw.githubusercontent.com/user/repo/main/README.md)',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _isLoading ? null : _convertFromUrl,
-              child: _isLoading 
+              child: _isLoading
                   ? const CircularProgressIndicator()
                   : const Text('Convert from URL'),
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // Direct Markdown Input Section
             const Text(
               'From Text:',
@@ -138,7 +175,7 @@ void main() {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _isLoading ? null : _convertFromText,
-              child: _isLoading 
+              child: _isLoading
                   ? const CircularProgressIndicator()
                   : const Text('Convert from Text'),
             ),
@@ -161,10 +198,9 @@ void main() {
     try {
       final source = HttpMarkdownSource(url: _urlController.text);
       final converter = MarkdownToPdfConverter(
-        options: const PdfOptions(
+        options: PredefinedPdfOptions.professionalOptions.copyWith(
           title: 'Document from URL',
           author: 'Markdown2PDF',
-          includePageNumbers: true,
         ),
       );
 
@@ -192,12 +228,13 @@ void main() {
     try {
       final source = StringMarkdownSource(_markdownController.text);
       final converter = MarkdownToPdfConverter(
-        options: const PdfOptions(
-          title: 'Custom Document',
+        options: PredefinedPdfOptions.defaultOptions.copyWith(
+          title: 'Enhanced Document',
           author: 'Markdown2PDF',
-          includePageNumbers: true,
           headerText: 'Generated Document',
-          footerText: 'Created with Markdown2PDF',
+          footerText: 'Created with Enhanced Markdown2PDF',
+          theme: PredefinedThemes.greenTheme,
+          tableStyle: PredefinedTableStyles.professionalTableStyle,
         ),
       );
 

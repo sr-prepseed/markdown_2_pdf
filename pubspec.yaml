@@ -1,6 +1,6 @@
 name: markdown_2_pdf
-description: A Flutter package for converting markdown content from HTTP responses to PDF with proper formatting
-version: 1.0.0
+description: A powerful Flutter package for converting markdown content to beautifully formatted PDFs with advanced customization options, themes, and professional styling
+version: 2.0.0
 homepage: https://github.com/rudSarkar/markdown_2_pdf
 
 environment:

@@ -73,10 +73,59 @@ class MarkdownToPdfConverter {
   /// Initialize fonts for PDF generation
   Future<void> _initializeFonts() async {
     try {
-      _regularFont = await PdfGoogleFonts.robotoRegular();
-      _boldFont = await PdfGoogleFonts.robotoBold();
-      _italicFont = await PdfGoogleFonts.robotoItalic();
-      _monospaceFont = await PdfGoogleFonts.robotoRegular();
+      // Try to load fonts based on configuration
+      switch (_options.fonts.regularFontFamily.toLowerCase()) {
+        case 'roboto':
+          _regularFont = await PdfGoogleFonts.robotoRegular();
+          break;
+        case 'opensans':
+          _regularFont = await PdfGoogleFonts.openSansRegular();
+          break;
+        case 'lato':
+          _regularFont = await PdfGoogleFonts.latoRegular();
+          break;
+        default:
+          _regularFont = await PdfGoogleFonts.robotoRegular();
+      }
+
+      switch (_options.fonts.boldFontFamily.toLowerCase()) {
+        case 'roboto':
+          _boldFont = await PdfGoogleFonts.robotoBold();
+          break;
+        case 'opensans':
+          _boldFont = await PdfGoogleFonts.openSansBold();
+          break;
+        case 'lato':
+          _boldFont = await PdfGoogleFonts.latoBold();
+          break;
+        default:
+          _boldFont = await PdfGoogleFonts.robotoBold();
+      }
+
+      switch (_options.fonts.italicFontFamily.toLowerCase()) {
+        case 'roboto':
+          _italicFont = await PdfGoogleFonts.robotoItalic();
+          break;
+        case 'opensans':
+          _italicFont = await PdfGoogleFonts.openSansItalic();
+          break;
+        case 'lato':
+          _italicFont = await PdfGoogleFonts.latoItalic();
+          break;
+        default:
+          _italicFont = await PdfGoogleFonts.robotoItalic();
+      }
+
+      switch (_options.fonts.monospaceFontFamily.toLowerCase()) {
+        case 'robotomono':
+          _monospaceFont = await PdfGoogleFonts.robotoMonoRegular();
+          break;
+        case 'sourcecodepro':
+          _monospaceFont = await PdfGoogleFonts.sourceCodeProRegular();
+          break;
+        default:
+          _monospaceFont = await PdfGoogleFonts.robotoMonoRegular();
+      }
     } catch (e) {
       // Fallback to default fonts if Google Fonts fail
       _regularFont = await PdfGoogleFonts.openSansRegular();
@@ -85,13 +134,14 @@ class MarkdownToPdfConverter {
       _monospaceFont = await PdfGoogleFonts.openSansRegular();
     }
 
-    // Set fonts in styles
+    // Set fonts and theme in styles
     PdfStyles.setFonts(
       regularFont: _regularFont,
       boldFont: _boldFont,
       italicFont: _italicFont,
       monospaceFont: _monospaceFont,
     );
+    PdfStyles.setTheme(_options.theme);
   }
 
   /// Build the PDF document from markdown source
@@ -99,7 +149,9 @@ class MarkdownToPdfConverter {
     _document = pw.Document();
 
     final markdownContent = await source.getContent();
-    final document = md.Document();
+    final document = md.Document(
+      extensionSet: md.ExtensionSet.gitHubFlavored,
+    );
     final nodes = document.parse(markdownContent);
 
     _document.addPage(
@@ -117,14 +169,19 @@ class MarkdownToPdfConverter {
 
   /// Build header for PDF pages
   pw.Widget _buildHeader(pw.Context context) {
+    // Use custom header if provided
+    if (_options.customHeader != null) {
+      return _options.customHeader!(context);
+    }
+
     if (_options.headerText == null) return pw.Container();
 
     return pw.Container(
       width: double.infinity,
       padding: const pw.EdgeInsets.only(bottom: 10),
-      decoration: const pw.BoxDecoration(
+      decoration: pw.BoxDecoration(
         border: pw.Border(
-          bottom: pw.BorderSide(color: PdfStyles.borderColor),
+          bottom: pw.BorderSide(color: _options.theme.borderColor),
         ),
       ),
       child: pw.Text(
@@ -137,12 +194,17 @@ class MarkdownToPdfConverter {
 
   /// Build footer for PDF pages
   pw.Widget _buildFooter(pw.Context context) {
+    // Use custom footer if provided
+    if (_options.customFooter != null) {
+      return _options.customFooter!(context);
+    }
+
     return pw.Container(
       width: double.infinity,
       padding: const pw.EdgeInsets.only(top: 10),
-      decoration: const pw.BoxDecoration(
+      decoration: pw.BoxDecoration(
         border: pw.Border(
-          top: pw.BorderSide(color: PdfStyles.borderColor),
+          top: pw.BorderSide(color: _options.theme.borderColor),
         ),
       ),
       child: pw.Row(
@@ -206,16 +268,30 @@ class MarkdownToPdfConverter {
   pw.Widget? _buildElement(md.Element element) {
     switch (element.tag) {
       case 'h1':
-        return pw.Padding(
-          padding: const pw.EdgeInsets.only(top: 20, bottom: 10),
+        return pw.Container(
+          margin: const pw.EdgeInsets.only(top: 24, bottom: 16),
+          padding: const pw.EdgeInsets.only(bottom: 8),
+          decoration: pw.BoxDecoration(
+            border: pw.Border(
+              bottom:
+                  pw.BorderSide(color: _options.theme.primaryColor, width: 2),
+            ),
+          ),
           child: pw.Text(
             _sanitizeText(element.textContent),
             style: PdfStyles.heading1,
           ),
         );
       case 'h2':
-        return pw.Padding(
-          padding: const pw.EdgeInsets.only(top: 18, bottom: 8),
+        return pw.Container(
+          margin: const pw.EdgeInsets.only(top: 20, bottom: 12),
+          padding: const pw.EdgeInsets.only(bottom: 6),
+          decoration: pw.BoxDecoration(
+            border: pw.Border(
+              bottom:
+                  pw.BorderSide(color: _options.theme.borderColor, width: 1),
+            ),
+          ),
           child: pw.Text(
             _sanitizeText(element.textContent),
             style: PdfStyles.heading2,
@@ -223,7 +299,7 @@ class MarkdownToPdfConverter {
         );
       case 'h3':
         return pw.Padding(
-          padding: const pw.EdgeInsets.only(top: 16, bottom: 6),
+          padding: const pw.EdgeInsets.only(top: 16, bottom: 8),
           child: pw.Text(
             _sanitizeText(element.textContent),
             style: PdfStyles.heading3,
@@ -231,7 +307,7 @@ class MarkdownToPdfConverter {
         );
       case 'h4':
         return pw.Padding(
-          padding: const pw.EdgeInsets.only(top: 14, bottom: 4),
+          padding: const pw.EdgeInsets.only(top: 14, bottom: 6),
           child: pw.Text(
             _sanitizeText(element.textContent),
             style: PdfStyles.heading4,
@@ -263,12 +339,14 @@ class MarkdownToPdfConverter {
         );
       case 'blockquote':
         return pw.Container(
-          margin: const pw.EdgeInsets.only(left: 20, bottom: 8),
-          padding: const pw.EdgeInsets.all(10),
+          margin: const pw.EdgeInsets.only(left: 20, bottom: 12),
+          padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(
-            border: const pw.Border(
-              left: pw.BorderSide(color: PdfStyles.primaryColor, width: 3),
+            border: pw.Border(
+              left: pw.BorderSide(
+                  color: _options.theme.blockquoteColor, width: 4),
             ),
+            color: _options.theme.backgroundColor,
           ),
           child: pw.Text(
             _sanitizeText(element.textContent),
@@ -278,10 +356,11 @@ class MarkdownToPdfConverter {
       case 'code':
         return pw.Container(
           margin: const pw.EdgeInsets.only(bottom: 8),
-          padding: const pw.EdgeInsets.all(8),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: pw.BoxDecoration(
-            color: PdfColor.fromInt(0xFFF5F5F5),
-            border: pw.Border.all(color: PdfStyles.borderColor),
+            color: _options.theme.codeBackgroundColor,
+            border: pw.Border.all(color: _options.theme.borderColor),
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
           ),
           child: pw.Text(
             _sanitizeText(element.textContent),
@@ -290,11 +369,12 @@ class MarkdownToPdfConverter {
         );
       case 'pre':
         return pw.Container(
-          margin: const pw.EdgeInsets.only(bottom: 8),
-          padding: const pw.EdgeInsets.all(12),
+          margin: const pw.EdgeInsets.only(bottom: 16),
+          padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(
-            color: PdfColor.fromInt(0xFFF5F5F5),
-            border: pw.Border.all(color: PdfStyles.borderColor),
+            color: _options.theme.codeBackgroundColor,
+            border: pw.Border.all(color: _options.theme.borderColor),
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
           ),
           child: pw.Text(
             _sanitizeText(element.textContent),
@@ -372,9 +452,18 @@ class MarkdownToPdfConverter {
         );
       case 'hr':
         return pw.Container(
-          margin: const pw.EdgeInsets.symmetric(vertical: 16),
-          height: 1,
-          color: PdfStyles.borderColor,
+          margin: const pw.EdgeInsets.symmetric(vertical: 20),
+          height: 2,
+          decoration: pw.BoxDecoration(
+            gradient: pw.LinearGradient(
+              colors: [
+                _options.theme.borderColor,
+                _options.theme.primaryColor,
+                _options.theme.borderColor,
+              ],
+            ),
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(1)),
+          ),
         );
       default:
         return pw.Text(
@@ -386,47 +475,170 @@ class MarkdownToPdfConverter {
 
   /// Build a table from markdown
   pw.Widget _buildTable(md.Element table) {
-    final rows = <List<String>>[];
+    final rows = <List<Map<String, dynamic>>>[];
 
+    // Handle GitHub Flavored markdown table structure
     for (final child in table.children ?? []) {
-      if (child is md.Element && child.tag == 'tr') {
-        final cells = <String>[];
-        for (final cell in child.children ?? []) {
-          if (cell is md.Element && (cell.tag == 'td' || cell.tag == 'th')) {
-            cells.add(cell.textContent);
+      if (child is md.Element &&
+          (child.tag == 'thead' || child.tag == 'tbody')) {
+        for (final row in child.children ?? []) {
+          if (row is md.Element && row.tag == 'tr') {
+            final cells = <Map<String, dynamic>>[];
+            for (final cell in row.children ?? []) {
+              if (cell is md.Element &&
+                  (cell.tag == 'td' || cell.tag == 'th')) {
+                cells.add({
+                  'content': cell.textContent,
+                  'isHeader': cell.tag == 'th' || child.tag == 'thead',
+                  'alignment': _getCellAlignment(cell),
+                });
+              }
+            }
+            if (cells.isNotEmpty) {
+              rows.add(cells);
+            }
           }
         }
-        rows.add(cells);
+      } else if (child is md.Element && child.tag == 'tr') {
+        // Fallback for direct tr elements
+        final cells = <Map<String, dynamic>>[];
+        for (final cell in child.children ?? []) {
+          if (cell is md.Element && (cell.tag == 'td' || cell.tag == 'th')) {
+            cells.add({
+              'content': cell.textContent,
+              'isHeader': cell.tag == 'th',
+              'alignment': _getCellAlignment(cell),
+            });
+          }
+        }
+        if (cells.isNotEmpty) {
+          rows.add(cells);
+        }
       }
     }
 
     if (rows.isEmpty) return pw.Container();
 
-    return pw.Table(
-      border: pw.TableBorder.all(color: PdfStyles.borderColor),
-      columnWidths: {
-        for (int i = 0; i < rows.first.length; i++)
-          i: const pw.FlexColumnWidth(),
-      },
-      children: rows.asMap().entries.map((entry) {
-        final isHeader = entry.key == 0;
-        return pw.TableRow(
-          decoration: isHeader
-              ? const pw.BoxDecoration(color: PdfStyles.primaryColor)
-              : null,
-          children: entry.value
-              .map((cell) => pw.Padding(
-                    padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      cell,
-                      style: isHeader
-                          ? PdfStyles.tableHeader
-                          : PdfStyles.tableCell,
-                    ),
-                  ))
-              .toList(),
-        );
-      }).toList(),
+    // Calculate column widths based on content
+    final columnWidths = _calculateColumnWidths(rows);
+
+    // Build table with advanced styling
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 16),
+      child: pw.Table(
+        border: _options.tableStyle.showBorders
+            ? pw.TableBorder.all(color: _options.tableStyle.borderColor)
+            : null,
+        columnWidths: columnWidths,
+        children: rows.asMap().entries.map((entry) {
+          final rowIndex = entry.key;
+          final cells = entry.value;
+          final isHeaderRow = rowIndex == 0;
+
+          return pw.TableRow(
+            decoration: _getRowDecoration(rowIndex, isHeaderRow),
+            children: cells
+                .map((cell) => _buildTableCell(cell, isHeaderRow))
+                .toList(),
+          );
+        }).toList(),
+      ),
     );
+  }
+
+  /// Calculate optimal column widths based on content
+  Map<int, pw.TableColumnWidth> _calculateColumnWidths(
+      List<List<Map<String, dynamic>>> rows) {
+    if (rows.isEmpty) return {};
+
+    final columnCount = rows.first.length;
+    final columnWidths = <int, pw.TableColumnWidth>{};
+
+    if (_options.enableAdvancedTables) {
+      // Calculate content-based widths
+      final maxLengths = List<int>.filled(columnCount, 0);
+
+      for (final row in rows) {
+        for (int i = 0; i < row.length && i < columnCount; i++) {
+          final contentLength = row[i]['content'].toString().length;
+          if (contentLength > maxLengths[i]) {
+            maxLengths[i] = contentLength;
+          }
+        }
+      }
+
+      final totalLength = maxLengths.reduce((a, b) => a + b);
+
+      for (int i = 0; i < columnCount; i++) {
+        if (totalLength > 0) {
+          final ratio = maxLengths[i] / totalLength;
+          columnWidths[i] = pw.FlexColumnWidth(ratio);
+        } else {
+          columnWidths[i] = const pw.FlexColumnWidth(1.0);
+        }
+      }
+    } else {
+      // Use equal width columns
+      for (int i = 0; i < columnCount; i++) {
+        columnWidths[i] = const pw.FlexColumnWidth(1.0);
+      }
+    }
+
+    return columnWidths;
+  }
+
+  /// Get row decoration based on styling options
+  pw.BoxDecoration? _getRowDecoration(int rowIndex, bool isHeaderRow) {
+    if (isHeaderRow) {
+      return pw.BoxDecoration(
+        color: _options.tableStyle.headerBackgroundColor,
+      );
+    }
+
+    if (_options.tableStyle.alternateRowColors && rowIndex % 2 == 1) {
+      return pw.BoxDecoration(
+        color: _options.tableStyle.alternateRowColor,
+      );
+    }
+
+    return null;
+  }
+
+  /// Build individual table cell
+  pw.Widget _buildTableCell(Map<String, dynamic> cell, bool isHeaderRow) {
+    final content = cell['content'].toString();
+    final isHeader = cell['isHeader'] as bool || isHeaderRow;
+    final alignment = cell['alignment'] as pw.TextAlign;
+
+    return pw.Padding(
+      padding: _options.tableStyle.cellPadding,
+      child: pw.Text(
+        content,
+        style: isHeader
+            ? PdfStyles.tableHeader
+                .copyWith(color: _options.tableStyle.headerTextColor)
+            : PdfStyles.tableCell,
+        textAlign: alignment,
+      ),
+    );
+  }
+
+  /// Get cell alignment from markdown attributes
+  pw.TextAlign _getCellAlignment(md.Element cell) {
+    // Check for alignment attributes in the cell
+    final attributes = cell.attributes;
+    final align = attributes['align']?.toLowerCase();
+    switch (align) {
+      case 'left':
+        return pw.TextAlign.left;
+      case 'center':
+        return pw.TextAlign.center;
+      case 'right':
+        return pw.TextAlign.right;
+      case 'justify':
+        return pw.TextAlign.justify;
+      default:
+        return pw.TextAlign.left;
+    }
   }
 }

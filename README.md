@@ -1,17 +1,18 @@
 # Markdown2PDF
 
-A Flutter package for converting markdown content from HTTP responses to PDF with proper formatting.
+A powerful Flutter package for converting markdown content to beautifully formatted PDFs with advanced customization options.
 
 ## Features
 
-- 📄 Convert markdown from HTTP URLs to PDF
-- 📝 Convert markdown from strings to PDF
-- 🎨 Beautiful PDF formatting with customizable styles
-- 📊 Support for tables, code blocks, lists, and more
-- 🔗 HTTP response handling with timeout and headers
-- 📱 Share and print PDFs directly
-- ⚙️ Highly customizable PDF options
-- 🧪 Well-tested with comprehensive test coverage
+- **Convert markdown** from HTTP URLs, strings, or HTTP responses to PDF
+- **Highly customizable** themes and styling with predefined options
+- **Advanced table formatting** with professional styling and alignment
+- **Beautiful default design** with improved visual hierarchy
+- **Multiple font families** (Roboto, Open Sans, Lato, etc.)
+- **Share and print PDFs** directly
+- **Extensive customization options** for every aspect
+- **Well-tested** with comprehensive test coverage
+- **Easy-to-use API** with predefined configurations
 
 ## Installation
 
@@ -72,9 +73,29 @@ final converter = MarkdownToPdfConverter();
 await converter.convertAndShare(source);
 ```
 
-### Custom PDF Options
+### Using Predefined Themes
 
 ```dart
+// Use predefined professional theme
+final converter = MarkdownToPdfConverter(
+  options: PredefinedPdfOptions.professionalOptions.copyWith(
+    title: 'My Professional Document',
+    author: 'John Doe',
+  ),
+);
+
+// Use custom theme
+final customTheme = const PdfTheme(
+  primaryColor: PdfColor.fromInt(0xFF4CAF50),
+  secondaryColor: PdfColor.fromInt(0xFF757575),
+  textColor: PdfColor.fromInt(0xFF212121),
+  backgroundColor: PdfColor.fromInt(0xFFFFFFFF),
+  borderColor: PdfColor.fromInt(0xFFE0E0E0),
+  codeBackgroundColor: PdfColor.fromInt(0xFFF1F8E9),
+  tableHeaderColor: PdfColor.fromInt(0xFF4CAF50),
+  blockquoteColor: PdfColor.fromInt(0xFF4CAF50),
+);
+
 final options = const PdfOptions(
   title: 'My Custom Document',
   author: 'John Doe',
@@ -83,6 +104,20 @@ final options = const PdfOptions(
   includePageNumbers: true,
   headerText: 'Company Document',
   footerText: 'Confidential',
+  theme: customTheme,
+  fonts: PdfFonts(
+    regularFontFamily: 'Lato',
+    boldFontFamily: 'Lato',
+    italicFontFamily: 'Lato',
+    monospaceFontFamily: 'SourceCodePro',
+  ),
+  tableStyle: TableStyle(
+    showBorders: true,
+    headerBackgroundColor: PdfColor.fromInt(0xFF4CAF50),
+    headerTextColor: PdfColor.fromInt(0xFFFFFFFF),
+    alternateRowColors: true,
+    alternateRowColor: PdfColor.fromInt(0xFFF1F8E9),
+  ),
 );
 
 final converter = MarkdownToPdfConverter(options: options);
@@ -131,7 +166,7 @@ Abstract class for markdown content sources.
 
 Configuration options for PDF generation.
 
-#### Properties
+#### Basic Properties
 
 - `pageFormat` - PDF page format (default: A4)
 - `margins` - Page margins
@@ -149,17 +184,60 @@ Configuration options for PDF generation.
 - `lineHeight` - Line height multiplier (default: 1.4)
 - `debugMode` - Enable debug mode (default: false)
 
+#### Advanced Properties
+
+- `theme` - PdfTheme configuration for colors and styling
+- `fonts` - PdfFonts configuration for font families
+- `tableStyle` - TableStyle configuration for table appearance
+- `customStyles` - Map of custom CSS-like styles for specific elements
+- `enableAdvancedTables` - Enable advanced table formatting (default: true)
+- `enableSyntaxHighlighting` - Enable syntax highlighting for code blocks (default: false)
+- `pageBreakBeforeHeadings` - Add page breaks before major headings (default: false)
+- `customHeader` - Custom header widget builder function
+- `customFooter` - Custom footer widget builder function
+
+### Predefined Themes
+
+The package includes several predefined themes for quick setup:
+
+- `PredefinedThemes.defaultTheme` - Default blue theme
+- `PredefinedThemes.darkTheme` - Dark theme
+- `PredefinedThemes.greenTheme` - Green theme
+- `PredefinedThemes.purpleTheme` - Purple theme
+- `PredefinedThemes.orangeTheme` - Orange theme
+- `PredefinedThemes.professionalTheme` - Professional minimal theme
+
+### Predefined Fonts
+
+- `PredefinedFonts.defaultFonts` - Roboto fonts
+- `PredefinedFonts.openSansFonts` - Open Sans fonts
+- `PredefinedFonts.latoFonts` - Lato fonts
+
+### Predefined Table Styles
+
+- `PredefinedTableStyles.defaultTableStyle` - Default table with borders
+- `PredefinedTableStyles.minimalTableStyle` - Minimal table without borders
+- `PredefinedTableStyles.professionalTableStyle` - Professional table styling
+
+### Predefined PDF Options
+
+- `PredefinedPdfOptions.defaultOptions` - Default configuration
+- `PredefinedPdfOptions.professionalOptions` - Professional document settings
+- `PredefinedPdfOptions.academicOptions` - Academic paper settings
+- `PredefinedPdfOptions.presentationOptions` - Presentation settings
+
 ## Supported Markdown Features
 
-- ✅ Headers (H1-H6)
-- ✅ Bold and italic text
-- ✅ Code blocks and inline code
-- ✅ Lists (ordered and unordered)
-- ✅ Tables
-- ✅ Blockquotes
-- ✅ Links
-- ✅ Horizontal rules
-- ✅ Line breaks
+- **Headers (H1-H6)** with enhanced styling and visual hierarchy
+- **Bold and italic text** with proper font rendering
+- **Code blocks and inline code** with syntax highlighting support
+- **Lists (ordered and unordered)** with proper indentation
+- **Advanced tables** with professional formatting, borders, and alignment
+- **Blockquotes** with beautiful styling and borders
+- **Links** with proper color coding
+- **Horizontal rules** with gradient styling
+- **Line breaks** and paragraph spacing
+- **Custom styling** for all elements
 
 ## Permissions
 
@@ -203,9 +281,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Changelog
 
+### 2.0.0 (Enhanced Version)
+- **Highly customizable themes** with predefined options
+- **Advanced table formatting** with professional styling
+- **Beautiful default design** with improved visual hierarchy
+- **Multiple font families** (Roboto, Open Sans, Lato, Source Code Pro)
+- **Extensive customization options** for every aspect
+- **Predefined configurations** for quick setup
+- **Enhanced styling** for all markdown elements
+- **Custom header/footer builders** for advanced layouts
+
 ### 1.0.0
 - Initial release
 - Support for HTTP and string markdown sources
-- Comprehensive PDF formatting
+- Basic PDF formatting
 - Customizable PDF options
 - Share and print functionality
