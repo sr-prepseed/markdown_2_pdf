@@ -1,5 +1,6 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import '../models/pdf_options.dart';
 
 /// Predefined styles for PDF generation
 class PdfStyles {
@@ -7,6 +8,7 @@ class PdfStyles {
   static pw.Font? _boldFont;
   static pw.Font? _italicFont;
   static pw.Font? _monospaceFont;
+  static PdfTheme _theme = const PdfTheme();
 
   /// Set fonts for the styles
   static void setFonts({
@@ -21,16 +23,18 @@ class PdfStyles {
     _monospaceFont = monospaceFont;
   }
 
-  static const PdfColor primaryColor = PdfColor.fromInt(0xFF2196F3);
-  static const PdfColor secondaryColor = PdfColor.fromInt(0xFF757575);
-  static const PdfColor textColor = PdfColor.fromInt(0xFF212121);
-  static const PdfColor backgroundColor = PdfColor.fromInt(0xFFFFFFFF);
-  static const PdfColor borderColor = PdfColor.fromInt(0xFFE0E0E0);
+  /// Set theme for the styles
+  static void setTheme(PdfTheme theme) {
+    _theme = theme;
+  }
+
+  /// Get current theme
+  static PdfTheme get theme => _theme;
 
   /// Default text style
   static pw.TextStyle get defaultText => pw.TextStyle(
         fontSize: 12,
-        color: textColor,
+        color: _theme.textColor,
         font: _regularFont,
         fontFallback: [_regularFont, _boldFont].whereType<pw.Font>().toList(),
       );
@@ -38,7 +42,7 @@ class PdfStyles {
   /// Heading 1 style
   static pw.TextStyle get heading1 => pw.TextStyle(
         fontSize: 24,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -46,7 +50,7 @@ class PdfStyles {
   /// Heading 2 style
   static pw.TextStyle get heading2 => pw.TextStyle(
         fontSize: 20,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -54,7 +58,7 @@ class PdfStyles {
   /// Heading 3 style
   static pw.TextStyle get heading3 => pw.TextStyle(
         fontSize: 18,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -62,7 +66,7 @@ class PdfStyles {
   /// Heading 4 style
   static pw.TextStyle get heading4 => pw.TextStyle(
         fontSize: 16,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -70,7 +74,7 @@ class PdfStyles {
   /// Heading 5 style
   static pw.TextStyle get heading5 => pw.TextStyle(
         fontSize: 14,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -78,7 +82,7 @@ class PdfStyles {
   /// Heading 6 style
   static pw.TextStyle get heading6 => pw.TextStyle(
         fontSize: 12,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -95,7 +99,7 @@ class PdfStyles {
   /// Blockquote style
   static pw.TextStyle get blockquote => pw.TextStyle(
         fontSize: 12,
-        color: secondaryColor,
+        color: _theme.secondaryColor,
         font: _italicFont,
         fontFallback: [_italicFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -103,7 +107,7 @@ class PdfStyles {
   /// Link style
   static pw.TextStyle get link => pw.TextStyle(
         fontSize: 12,
-        color: primaryColor,
+        color: _theme.primaryColor,
         font: _regularFont,
         fontFallback: [_regularFont, _boldFont].whereType<pw.Font>().toList(),
       );
@@ -111,7 +115,7 @@ class PdfStyles {
   /// Bold text style
   static pw.TextStyle get bold => pw.TextStyle(
         fontSize: 12,
-        color: textColor,
+        color: _theme.textColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -119,7 +123,7 @@ class PdfStyles {
   /// Italic text style
   static pw.TextStyle get italic => pw.TextStyle(
         fontSize: 12,
-        color: textColor,
+        color: _theme.textColor,
         font: _italicFont,
         fontFallback: [_italicFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -127,7 +131,7 @@ class PdfStyles {
   /// Table header style
   static pw.TextStyle get tableHeader => pw.TextStyle(
         fontSize: 12,
-        color: backgroundColor,
+        color: _theme.backgroundColor,
         font: _boldFont,
         fontFallback: [_boldFont, _regularFont].whereType<pw.Font>().toList(),
       );
@@ -135,7 +139,7 @@ class PdfStyles {
   /// Table cell style
   static pw.TextStyle get tableCell => pw.TextStyle(
         fontSize: 11,
-        color: textColor,
+        color: _theme.textColor,
         font: _regularFont,
         fontFallback: [_regularFont, _boldFont].whereType<pw.Font>().toList(),
       );
@@ -143,7 +147,7 @@ class PdfStyles {
   /// Header style
   static pw.TextStyle get header => pw.TextStyle(
         fontSize: 10,
-        color: secondaryColor,
+        color: _theme.secondaryColor,
         font: _regularFont,
         fontFallback: [_regularFont, _boldFont].whereType<pw.Font>().toList(),
       );
@@ -151,7 +155,7 @@ class PdfStyles {
   /// Footer style
   static pw.TextStyle get footer => pw.TextStyle(
         fontSize: 10,
-        color: secondaryColor,
+        color: _theme.secondaryColor,
         font: _regularFont,
         fontFallback: [_regularFont, _boldFont].whereType<pw.Font>().toList(),
       );
@@ -159,7 +163,7 @@ class PdfStyles {
   /// Page number style
   static pw.TextStyle get pageNumber => pw.TextStyle(
         fontSize: 10,
-        color: secondaryColor,
+        color: _theme.secondaryColor,
         font: _regularFont,
         fontFallback: [_regularFont, _boldFont].whereType<pw.Font>().toList(),
       );
